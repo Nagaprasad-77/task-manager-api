@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  redis:
+    image: redis:7
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+  api:
+    image: yourdockerhubuser/task-manager-api:latest
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    depends_on:
+      - redis
+
+  worker:
+    image: yourdockerhubuser/task-manager-api:latest
+    command: ["celery", "-A", "celery_worker.celery_app", "worker", "--loglevel=info", "-Q", "email"]
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      - redis

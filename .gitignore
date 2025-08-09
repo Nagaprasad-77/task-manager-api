@@ -1,0 +1,51 @@
+
+---
+```gitignore
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+*.egg
+*.egg-info/
+dist/
+build/
+.mypy_cache/
+
+# Environment
+.env
+.env.*
+.venv/
+env/
+venv/
+
+# IDEs and Editors
+.vscode/
+.idea/
+
+# Byte-compiled / compiled files
+*.so
+*.dll
+*.dylib
+
+# Logs
+*.log
+*.out
+*.err
+
+# Pytest
+.cache/
+.pytest_cache/
+
+# Database
+*.sqlite3
+*.db
+
+# Docker
+*.pid
+docker-compose.override.yml
+
+# OS Files
+.DS_Store
+Thumbs.db
