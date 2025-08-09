@@ -1,7 +1,8 @@
 # MacV AI - Task Management System API
 
 A lightweight **Task Management System API** built with **FastAPI**, **PostgreSQL**, **Celery**, and **Docker**.  
-Includes JWT authentication, background workers, and email notifications.
+Includes JWT authentication, background workers, and email notifications.  
+**Live API:** [https://task-manager-api-gnnh.onrender.com](https://task-manager-api-gnnh.onrender.com)
 
 ---
 
@@ -22,7 +23,7 @@ Includes JWT authentication, background workers, and email notifications.
   - Celery workers with Redis
 - **Deployment**
   - Dockerized app
-  - GitHub Actions workflow for Docker image build
+  - GitHub Actions workflow for Docker image build & push
 
 ---
 
@@ -43,25 +44,27 @@ Includes JWT authentication, background workers, and email notifications.
 ```bash
 git clone https://github.com/<your-username>/task-management-api.git
 cd task-management-api
-
 2️⃣ Environment Variables
 Create a .env file in the root directory:
+
+env
 
 DATABASE_URL=postgresql+psycopg2://user:password@db:5432/task_db
 SECRET_KEY=your-secret-key
 ALGORITHM=HS256
+
 SMTP_HOST=smtp.example.com
 SMTP_PORT=587
 SMTP_USER=your-email@example.com
 SMTP_PASSWORD=your-email-password
-REDIS_URL=redis://redis:6379/0
 
+REDIS_URL=redis://redis:6379/0
 3️⃣ Run Locally with Docker
 
 docker-compose up --build
 This will start:
 
-FastAPI app on http://localhost:8000
+FastAPI app → http://localhost:8000
 
 PostgreSQL
 
@@ -77,72 +80,83 @@ ReDoc: http://localhost:8000/redoc
 5️⃣ Run Tests
 
 pytest
-🐳 Build & Push Docker Image (GitHub Actions)
-This project is configured to automatically build & push a Docker image on every push to the main branch via GitHub Actions.
 
-Create a repository on GitHub.
-
-Add GitHub Secrets:
-
-DOCKER_USERNAME → your Docker Hub username
-
-DOCKER_PASSWORD → your Docker Hub password or access token
-
-Push to the main branch — the workflow will:
+🐳 Deployment
+This project uses GitHub Actions to automatically:
 
 Build Docker image
 
-Push to Docker Hub as dockerhub-username/task-management-api:latest
+Push to Docker Hub: dockerhub-username/task-management-api:latest
+
+Steps:
+
+Create a GitHub repository.
+
+Add GitHub Secrets:
+
+DOCKER_USERNAME
+
+DOCKER_PASSWORD
+
+Push to main branch — workflow will run automatically.
+
+Deploy container to Render/AWS/Azure.
 
 🗄 Database Schema Diagram
+mermaid
+Copy
+Edit
+erDiagram
+    User {
+        int id PK
+        string username
+        string email
+        string password_hash
+    }
+    Project {
+        int id PK
+        string name
+        string description
+        int owner_id FK
+    }
+    Task {
+        int id PK
+        string title
+        string description
+        string status
+        string priority
+        date due_date
+        int project_id FK
+        int assigned_user_id FK
+    }
+    User ||--o{ Project : owns
+    User ||--o{ Task : assigned
+    Project ||--o{ Task : contains
 
-User
-----
-id (PK)
-username
-email
-password_hash
+🔑 Authentication Flow
+Register → POST /auth/register
 
-Project
--------
-id (PK)
-name
-description
-owner_id (FK → User.id)
+Login → POST /auth/login
 
-Task
-----
-id (PK)
-title
-description
-status
-priority
-due_date
-project_id (FK → Project.id)
-assigned_user_id (FK → User.id)
+Copy access_token from login response.
 
-🔑 Authentication
-Register: POST /auth/register
+Use token in Authorization header:
 
-Login: POST /auth/login
+makefile
 
-Copy access_token from the login response.
+Authorization: Bearer <your_token>
 
-Use as Bearer token in all authenticated requests.
+📬 Email & Celery
+Emails are sent asynchronously using Celery workers.
 
-📨 Email & Celery Setup
-Emails are sent asynchronously via Celery workers.
+Redis acts as the message broker.
 
-Redis is used as the Celery broker.
+Celery Beat schedules daily overdue task summary.
 
-Daily overdue task summary is scheduled via Celery Beat.
+📌 Useful Links
+Live API: https://task-manager-api-gnnh.onrender.com
 
-🛠 Deployment
-Ensure .env is configured for production.
-
-GitHub Actions will handle image build & push.
-
-Deploy to any container hosting (e.g., Render, AWS ECS, Azure Container Apps, etc.).
+Swagger Docs: https://task-manager-api-gnnh.onrender.com/docs
 
 📬 Contact
-For questions, email krithik@macv.ai.
+For any queries, reach out to krithik@macv.ai
